@@ -1,0 +1,54 @@
+# Example policy for autocontext. Copy it, edit it, pass it with --policy.
+# Every key is optional; the value shown is the built-in default unless noted.
+
+# Transcript globs read when none are given on the command line.
+transcripts = ["~/.claude/projects/-path-of-your-project/*.jsonl"]
+
+# Relative weight per token class. Weighted cost = sum(tokens * weight).
+# These are relative units, not prices.
+[weights]
+input = 1.0
+cache_read = 1.0
+cache_creation = 1.0
+output = 1.0
+
+[measure]
+# Turns after a compaction in which a re-read of a file already read before
+# that compaction counts as re-discovery.
+rediscovery_turns = 20
+
+[models]
+# Model-name substrings that may use the 1m window.
+allow_1m = ["sonnet", "haiku"]
+# Opus is refused the 1m window unless this is true.
+allow_opus_1m = false
+# If non-empty, only models containing one of these substrings are advised
+# or rewritten. Empty (the default) means any model may run at 200k.
+allow = []
+
+# Tiers, lowest first. Defaults: 200k/150000, 1m/400000, 1m/800000.
+[[tiers]]
+window = "200k"
+autocompact = 150000
+[[tiers]]
+window = "1m"
+autocompact = 400000
+[[tiers]]
+window = "1m"
+autocompact = 800000
+
+[rule]
+lookback_compactions = 5   # most recent compactions considered per role
+min_compactions = 2        # fewer than this is not enough evidence to grow
+grow_rereads = 3.0         # mean re-reads per compaction needed to grow
+cost_tolerance = 0.10      # allowed relative rise in cost per progress unit
+
+# Roles group sessions. "match" globs are tested against the transcript file
+# name (without .jsonl) and the base name of the session's working directory.
+# Sessions that match no role fall into "default". "model" and "tier" (an index
+# into the tiers above) are optional; without them the model and tier are
+# taken from the newest session.
+[roles.builder]
+match = ["builder-*"]
+model = "claude-sonnet-5-5"
+tier = 0
