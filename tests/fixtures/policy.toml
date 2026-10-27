@@ -1,0 +1,19 @@
+# Test policy. Weights are invented relative units, not prices.
+[weights]
+input = 1.0
+cache_read = 0.1
+cache_creation = 1.0
+output = 4.0
+
+[measure]
+rediscovery_turns = 20
+
+[models]
+allow_1m = ["sonnet", "haiku"]
+
+[roles.grow]
+match = ["grow-*"]
+[roles.shrink]
+match = ["shrink-*"]
+[roles.opus]
+match = ["opus-*"]
